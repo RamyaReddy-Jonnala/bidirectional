@@ -1,0 +1,37 @@
+from collections import deque
+def bidirectional_search(graph, start, target):
+    if start == target:
+        return [start]
+    queue_f = deque([start])
+    queue_b = deque([target])
+    visited_f = {start: None}
+    visited_b = {target: None}
+    def combine_paths(node):
+        path = []
+        while node:
+            path.append(node)
+            node = visited_f[node]
+        path = path[::-1]
+        node = visited_b[path[-1]]
+        while node:
+            path.append(node)
+            node = visited_b[node]
+        return path
+    while queue_f and queue_b:
+        current_f = queue_f.popleft()
+        for neighbor in graph[current_f]:
+            if neighbor not in visited_f:
+                visited_f[neighbor] = current_f
+                queue_f.append(neighbor)
+            if neighbor in visited_b:
+                return combine_paths(neighbor)
+        current_b = queue_b.popleft()
+        for neighbor in graph[current_b]:
+            if neighbor not in visited_b:
+                visited_b[neighbor] = current_b
+                queue_b.append(neighbor)
+            if neighbor in visited_f:
+                return combine_paths(neighbor)
+    return None
+path = bidirectional_search(graph, 'S', 'T')
+print(f"Path found: {path}")
